@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -16,10 +17,6 @@ class FieldTest {
         expected[1][1] = 1;
         Field actualField = new Field(3,3);
         actualField.createArray(coordinates);
-        assertEquals(expected[2][1], actualField.field[2][1]);
-        assertEquals(expected[1][2], actualField.field[1][2]);
-        assertEquals(expected[1][1], actualField.field[1][1]);
-        assertEquals(expected[0][1], actualField.field[0][1]);
-
+        assertArrayEquals(expected, actualField.field);
     }
 }
