@@ -8,6 +8,7 @@ public class Cell {
     boolean hasMine;
     boolean opened;
     boolean flagged;
+    Double probability;
 
     public Cell(int x, int y, int neighboursMines) {
         this.x = x;
@@ -16,6 +17,7 @@ public class Cell {
         this.hasMine = false;
         this.opened = false;
         this.flagged = false;
+        this.probability = 10.0;
     }
 
     public int neighboursFlags;

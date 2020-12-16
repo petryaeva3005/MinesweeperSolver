@@ -1,13 +1,16 @@
 import java.util.*;
 
 public class MinesweeperSolver {
+    int mines;
     int fieldWidth;
     int fieldHeight;
     Cell[][] cells;
     public LinkedList<Cell> cellsToAnalyze;
     Field inputField;
+    int openMines;
 
-    public MinesweeperSolver(int fieldWidth, int fieldHeight, Field inputField) {
+    public MinesweeperSolver(int fieldWidth, int fieldHeight, Field inputField, int mines) {
+        this.mines = mines;
         this.fieldWidth = fieldWidth;
         this.fieldHeight = fieldHeight;
         this.cells = new Cell[fieldWidth][fieldHeight];
@@ -18,6 +21,7 @@ public class MinesweeperSolver {
         }
         this.cellsToAnalyze = new LinkedList<>();
         this.inputField = inputField;
+        this.openMines = 0;
     }
 
     public void openCell(Cell cell) {
@@ -40,6 +44,7 @@ public class MinesweeperSolver {
     }
 
     public void flagCell(Cell cell) {
+        openMines++;
         cell.flagged = true;
         cell.neighboursMines = 9;
     }
@@ -53,16 +58,16 @@ public class MinesweeperSolver {
             return null;
         } else {
             if (inputField.field[randWidth][randHeight] != 0)
-                System.out.println("К сожалению, клетка не пустая. Поэтому открываем эту клетку и генерируем новые коородинаты клетки");
+                System.out.println("К сожалению, клетка не пустая. Поэтому открываем эту клетку и генерируем новые координаты клетки");
             else System.out.println("Ура! Клетка пустая, поэтому открываем область");
             return new Coordinate(randWidth, randHeight);
         }
     }
 
     public int iteration() {
+        int actions = 0;
         Set<Cell> cellsToOpening = new HashSet<>();
         Iterator<Cell> iterator = cellsToAnalyze.iterator();
-        int actions = 0;
         while (iterator.hasNext()) {
             Cell element = iterator.next();
             List<Cell> listNeighboursClosed = element.neighbours(cells);
@@ -94,9 +99,36 @@ public class MinesweeperSolver {
             coordinate = this.random();
             if (coordinate != null) this.openCell(cells[coordinate.x][coordinate.y]);
         } while (coordinate == null || inputField.field[coordinate.x][coordinate.y] != 0);
-
         int actions = this.iteration();
         while (actions > 0) actions = this.iteration();
+        while (openMines != mines) {
+            LinkedList<Cell> probabilities = new LinkedList<>();
+            for (Cell element : cellsToAnalyze) {
+                List<Cell> listNeighboursClosed = element.neighbours(cells);
+                double probability = (cells[element.x][element.y].neighboursMines -
+                        cells[element.x][element.y].neighboursFlags) * 1.0 / cells[element.x][element.y].neighboursClosed;
+                for (Cell e : listNeighboursClosed) {
+                    if (cells[e.x][e.y].probability == 10.0) {
+                        cells[e.x][e.y].probability = probability;
+                    } else {
+                        cells[e.x][e.y].probability = 1.0 - (1.0 - probability) * (1.0 - cells[e.x][e.y].probability);
+                    }
+                    probabilities.add(cells[e.x][e.y]);
+                }
+            }
+            double minProbability = Double.MAX_VALUE;
+            Coordinate minProbabilityCoordinate = new Coordinate(0, 0);
+            for (Cell e : probabilities) {
+                if (cells[e.x][e.y].probability <= minProbability) {
+                    minProbabilityCoordinate = new Coordinate(e.x, e.y);
+                    minProbability = cells[e.x][e.y].probability;
+                }
+                cells[e.x][e.y].probability = 10.0;
+            }
+            this.openCell(cells[minProbabilityCoordinate.x][minProbabilityCoordinate.y]);
+            actions = this.iteration();
+            while (actions > 0) actions = this.iteration();
+        }
     }
 
 }
