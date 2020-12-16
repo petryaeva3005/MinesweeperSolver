@@ -17,19 +17,23 @@ public class Cell {
         this.hasMine = false;
         this.opened = false;
         this.flagged = false;
-        this.probability = 10.0;
+        this.probability = 1.0;
     }
 
     public int neighboursFlags;
     public int neighboursClosed;
 
+    // метод выводит список закрытых клеток рядом
+    // а также вычисляет кол-во флагов рядом
     public List<Cell> neighbours(Cell[][] cells) {
         neighboursFlags = 0;
         neighboursClosed = 0;
         List<Cell> listNeighboursClosed = new ArrayList<>();
+        // проходимся по соседям
         for (int a = -1; a <= 1; a++) {
             for (int b = -1; b <= 1; b++) {
                 if (a != 0 || b != 0) {
+                    // проверяем границы
                     if (x + a > -1 && x + a < cells.length)
                         if (y + b > -1 && y + b < cells[x].length)
                             if (cells[x + a][y + b].flagged) neighboursFlags++;
